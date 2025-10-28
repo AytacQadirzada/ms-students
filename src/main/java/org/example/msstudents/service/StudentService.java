@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface StudentService {
@@ -22,8 +23,8 @@ public interface StudentService {
 
     void updateStudent(Long id, CreateStudentRequest studentDto);
 
-    List<StudentResponse> getStudent(String field, Object value);
+    List<StudentResponse> getStudent(Map<String, Object> filters);
 
-    List<StudentResponse> getStudentByAddress(String field, String value);
+    List<StudentResponse> getStudentByAddress(Map<String, Object> filters);
 
 }
