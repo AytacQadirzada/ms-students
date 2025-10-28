@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/v1/students")
@@ -35,19 +36,18 @@ public class StudentController {
     public StudentResponse getStudentById(@PathVariable Long id) {
         return studentService.getStudentById(id);
     }
-    @GetMapping("/search")
-    public List<StudentResponse> searchStudent(
-            @RequestParam String field,
-            @RequestParam String value) {
-        return studentService.getStudent(field, value);
+
+    @PostMapping("/search")
+    public List<StudentResponse> searchStudent(@RequestBody Map<String, Object> filters) {
+        return studentService.getStudent(filters);
     }
 
-    @GetMapping("/searchAddress")
+    @PostMapping("/searchAddress")
     public List<StudentResponse> searchStudentByAddress(
-            @RequestParam String field,
-            @RequestParam String value) {
-        return studentService.getStudentByAddress(field, value);
+            @RequestBody Map<String, Object> filters) {
+        return studentService.getStudentByAddress(filters);
     }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void addStudent(@Valid @RequestBody CreateStudentRequest studentDto) {

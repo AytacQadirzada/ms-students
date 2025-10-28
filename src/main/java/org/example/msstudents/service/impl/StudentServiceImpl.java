@@ -1,10 +1,7 @@
 package org.example.msstudents.service.impl;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.msstudents.dao.entity.AdressEntity;
@@ -19,7 +16,9 @@ import org.springframework.data.domain.*;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -53,14 +52,19 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public List<StudentResponse> getStudent(String field, Object value) {
+    public List<StudentResponse> getStudent(Map<String, Object> filters) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
         CriteriaQuery<StudentEntity> cq = cb.createQuery(StudentEntity.class);
         Root<StudentEntity> student = cq.from(StudentEntity.class);
 
-        cq.select(student)
-                .where(cb.equal(student.get(field), value));
+        List<Predicate> predicates = new ArrayList<>();
+
+        for (Map.Entry<String, Object> entry : filters.entrySet()) {
+            predicates.add(cb.equal(student.get(entry.getKey()), entry.getValue()));
+        }
+
+        cq.select(student).where(cb.and(predicates.toArray(new Predicate[0])));
 
         List<StudentEntity> resultList = entityManager.createQuery(cq).getResultList();
 
@@ -70,15 +74,20 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public List<StudentResponse> getStudentByAddress(String field, String value) {
-
+    public List<StudentResponse> getStudentByAddress(Map<String, Object> filters) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<StudentEntity> cq = cb.createQuery(StudentEntity.class);
         Root<StudentEntity> student = cq.from(StudentEntity.class);
 
         Join<StudentEntity, AdressEntity> address = student.join("address");
 
-        cq.select(student).where(cb.equal(address.get(field), value));
+        List<Predicate> predicates = new ArrayList<>();
+
+        for (Map.Entry<String, Object> entry : filters.entrySet()) {
+            predicates.add(cb.equal(address.get(entry.getKey()), entry.getValue()));
+        }
+
+        cq.select(student).where(cb.and(predicates.toArray(new Predicate[0])));
 
         List<StudentEntity> resultList = entityManager.createQuery(cq).getResultList();
 
